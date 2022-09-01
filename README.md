@@ -38,4 +38,6 @@ then use `./target/release/jsonlog-pretty-printer` directly or copy it somewhere
 
 `jsonlog-pretty-printer` just takes the log from the standard input and outputs the rendered version to the standard output.
 
-To avoid filling your disk with application logs, you may want to create a named pipe ( `mkfifo output.log` ) and make your application output its logs to it, then `cat output.log | jsonlog-pretty-printer` to render the prettified version.  
+If you can't directly pipe your logs through `jsonlog-pretty-printer`, which may be the case if you run your application in an IDE, you can redirect the application output to a file and then pipe that file through `jsonlog-pretty-printer`.
+
+In that case, to avoid filling your disk with application logs, you may want to create a named pipe ( `mkfifo output.log` ) and make your application output its logs to it ( i.e. 'Save console output to file' in the 'logs' tab in Jetbrains IDEs ), then `cat output.log | jsonlog-pretty-printer` to render the prettified version.  
