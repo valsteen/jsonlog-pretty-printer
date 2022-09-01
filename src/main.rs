@@ -50,7 +50,7 @@ fn dive(indent: usize, value: Value) -> String {
 fn main() {
     let stdin = io::stdin();
     for line in stdin.lock().lines().flatten() {
-        let json_line = serde_json::from_str::<serde_json::Value>(&*line);
+        let json_line = serde_json::from_str::<Value>(&*line);
 
         if let Ok(value) = json_line {
             println!("{}", dive(0, value))
