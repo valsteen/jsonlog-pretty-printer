@@ -12,11 +12,16 @@ fn dive(indent: usize, value: Value) -> String {
     match value {
         Value::Null => "(null)".to_string(),
         Value::Bool(_) | Value::Number(_) => value.to_string(),
-        Value::String(s) => s
-            .split('\n')
-            .zip(left_padding_generator)
-            .map(|(line, padding)| format!("{}{}", padding, line))
-            .join("\n"),
+        Value::String(s) => {
+            if let Ok(parsed) = serde_json::from_str::<Value>(&*s) {
+                dive(indent, parsed)
+            } else {
+                s.split('\n')
+                    .zip(left_padding_generator)
+                    .map(|(line, padding)| format!("{}{}", padding, line))
+                    .join("\n")
+            }
+        }
         Value::Array(a) => a
             .into_iter()
             .zip(left_padding_generator)
