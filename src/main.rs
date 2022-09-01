@@ -1,3 +1,4 @@
+use colorize::AnsiColor;
 use itertools::Itertools;
 use serde_json::Value;
 use std::io;
@@ -27,10 +28,11 @@ fn dive(indent: usize, value: Value) -> String {
                 .zip(left_padding_generator)
                 .map(|((k, v), padding)| {
                     let afterkey = " ".repeat(max_indent - k.len());
+                    let key = (indent == 0).then(|| k.clone().bold()).unwrap_or(k);
                     format!(
                         "{}{}{}: {}",
                         padding,
-                        k,
+                        key,
                         afterkey,
                         dive(indent + max_indent + 2, v)
                     )
