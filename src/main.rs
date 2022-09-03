@@ -24,7 +24,7 @@ fn dive(indent: usize, value: Value) -> String {
             o.into_iter()
                 .zip(left_padding_generator(indent))
                 .map(|((k, v), padding)| {
-                    let afterkey = " ".repeat(max_indent - k.len());
+                    let afterkey = String::from_iter(repeat_n(' ', max_indent - k.len()));
                     let key = (indent == 0).then(|| k.clone().bold()).unwrap_or(k);
                     format!(
                         "{}{}{}: {}",
@@ -60,10 +60,10 @@ fn parse_string(indent: usize, s: String) -> String {
         .join("\n")
 }
 
-fn left_padding_generator(indent: usize) -> impl Iterator<Item=String> {
+fn left_padding_generator(indent: usize) -> impl Iterator<Item = String> {
     once(0)
         .chain(repeat(indent))
-        .map(|n| repeat_n(' ', n).collect::<String>())
+        .map(|n| String::from_iter(repeat_n(' ', n)))
 }
 
 fn main() {
