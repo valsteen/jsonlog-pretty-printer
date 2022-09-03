@@ -41,15 +41,26 @@ fn dive(indent: usize, value: Value) -> String {
 fn parse_string(indent: usize, s: String) -> String {
     // try hard to parse JSON strings shoved in regular strings
     // looking at you dd-trace-go 👀
-    for (position, c) in s.chars().enumerate() {
-        if let Some(Ok(value)) = ("{[".contains(c)).then(|| serde_json::from_str(&s[position..])) {
-            let dive_into = if position == 0 {
-                value
-            } else {
-                Value::Array(vec![Value::String(s[..position].to_string()), value])
-            };
-            return dive(indent, dive_into);
-        }
+    if let Some((value, position)) = s
+        .chars()
+        .enumerate()
+        .filter_map(|(n, c)| {
+            "{[".contains(c)
+                .then(|| {
+                    serde_json::from_str::<Value>(&s[n..])
+                        .map(|value| (value, n))
+                        .ok()
+                })
+                .flatten()
+        })
+        .next()
+    {
+        let dive_into = if position == 0 {
+            value
+        } else {
+            Value::Array(vec![Value::String(s[..position].to_string()), value])
+        };
+        return dive(indent, dive_into);
     }
     s.split('\n')
         .zip(left_padding_generator(indent))
