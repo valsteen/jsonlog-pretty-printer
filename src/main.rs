@@ -43,9 +43,7 @@ fn parse_string(indent: usize, s: String) -> String {
     // try hard to parse JSON strings shoved in regular strings
     // looking at you dd-trace-go 👀
     for (position, c) in s.chars().enumerate() {
-        if let Some(Ok(value)) =
-        ("{[".contains(c)).then(|| serde_json::from_str::<Value>(&s[position..]))
-        {
+        if let Some(Ok(value)) = ("{[".contains(c)).then(|| serde_json::from_str(&s[position..])) {
             let dive_into = if position == 0 {
                 value
             } else {
