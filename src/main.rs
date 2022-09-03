@@ -7,8 +7,7 @@ use std::iter::{once, repeat};
 
 fn dive(indent: usize, value: Value) -> String {
     match value {
-        Value::Null => "(null)".to_string(),
-        Value::Bool(_) | Value::Number(_) => value.to_string(),
+        Value::Bool(_) | Value::Number(_) | Value::Null => value.to_string(),
         Value::String(s) => parse_string(indent, s),
         Value::Array(a) => {
             let bullet = (indent == 0).then_some("").unwrap_or("- ");
