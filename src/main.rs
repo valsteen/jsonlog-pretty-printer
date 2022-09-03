@@ -12,10 +12,10 @@ fn dive(indent: usize, value: Value) -> String {
         Value::Array(a) => {
             let bullet = (indent == 0).then_some("").unwrap_or("- ");
             a.into_iter()
+                .map(|value| dive(indent + bullet.len(), value))
+                .filter(|s| !s.is_empty())
                 .zip(left_padding_generator(indent))
-                .map(|(line, padding)| {
-                    format!("{}{}{}", padding, bullet, dive(indent + bullet.len(), line))
-                })
+                .map(|(line, padding)| format!("{}{}{}", padding, bullet, line))
                 .join("\n")
         }
         Value::Object(o) => {
@@ -40,27 +40,28 @@ fn dive(indent: usize, value: Value) -> String {
 
 fn parse_string(indent: usize, s: String) -> String {
     // try hard to parse JSON strings shoved in regular strings
-    // looking at you dd-trace-go 👀
+    // looking at you dd-trace-go 👀. Stop trying if there is a newline.
     if let Some((value, position)) = s
         .chars()
         .enumerate()
-        .filter_map(|(n, c)| {
-            "{[".contains(c)
-                .then(|| {
+        .map_while(|(n, c)| {
+            match c {
+                '\n' => None, // map_while will stop iterating here
+                '{' | '[' => Some(
                     serde_json::from_str::<Value>(&s[n..])
                         .map(|value| (value, n))
-                        .ok()
-                })
-                .flatten()
+                        .ok(),
+                ),
+                _ => Some(None), // map_while will unwrap Some(_) , flatten will skip None
+            }
         })
+        .flatten()
         .next()
     {
-        let dive_into = if position == 0 {
-            value
-        } else {
-            Value::Array(vec![Value::String(s[..position].to_string()), value])
-        };
-        return dive(indent, dive_into);
+        return dive(
+            indent,
+            Value::Array(vec![Value::String(s[..position].to_string()), value]),
+        );
     }
     s.split('\n')
         .zip(left_padding_generator(indent))
