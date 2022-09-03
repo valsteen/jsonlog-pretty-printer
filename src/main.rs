@@ -1,14 +1,14 @@
 use colorize::AnsiColor;
-use itertools::Itertools;
+use itertools::{repeat_n, Itertools};
 use serde_json::Value;
 use std::io;
 use std::io::BufRead;
-use std::iter::repeat;
+use std::iter::{once, repeat};
 
 fn dive(indent: usize, value: Value) -> String {
-    let left_padding = " ".repeat(indent);
-    let left_padding_generator = [""].into_iter().chain(repeat(&*left_padding));
-
+    let left_padding_generator = once(0)
+        .chain(repeat(indent))
+        .map(|n| repeat_n(' ', n).collect::<String>());
     match value {
         Value::Null => "(null)".to_string(),
         Value::Bool(_) | Value::Number(_) => value.to_string(),
@@ -17,7 +17,7 @@ fn dive(indent: usize, value: Value) -> String {
             // looking at you dd-trace-go 👀
             for (position, c) in s.chars().enumerate() {
                 if let Some(Ok(value)) =
-                    ("{\"[".contains(c)).then(|| serde_json::from_str::<Value>(&s[position..]))
+                    ("{[".contains(c)).then(|| serde_json::from_str::<Value>(&s[position..]))
                 {
                     let dive_into = if position == 0 {
                         value
