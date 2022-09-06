@@ -20,8 +20,8 @@ struct Args {
     #[clap(short, long, value_parser)]
     use_bold: Option<bool>,
 
-    /// Parses the json output from gotest, aggregating the output from each test
-    #[clap(short, long, value_parser)]
+    /// Parses the json output from gotest, aggregating the output from each test. Defaults to true
+    #[clap(short('t'), long, value_parser)]
     parse_go_test_output: Option<bool>,
 }
 

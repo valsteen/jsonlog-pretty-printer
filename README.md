@@ -26,6 +26,34 @@ The indentation will be consistent when rendering a single json line, but it won
 
 Lines that do not parse as json are output as-is.
 
+## Usage
+
+```
+Prettifies JSON logs. The log is read from the standard input
+
+USAGE:
+    jsonlog-pretty-printer [OPTIONS]
+
+OPTIONS:
+    -h, --help
+            Print help information
+
+    -t, --parse-go-test-output <PARSE_GO_TEST_OUTPUT>
+            Parses the json output from gotest, aggregating the output from each test. Defaults to
+            true [possible values: true, false]
+
+    -u, --use-bold <USE_BOLD>
+            Displays first-level labels in bold. Defaults to true if output is a terminal [possible
+            values: true, false]
+
+    -V, --version
+            Print version information
+
+    -w, --wrap-long-lines <WRAP_LONG_LINES>
+            Wrap lines exceeding the console width. Defaults to true if output is a terminal
+            [possible values: true, false]
+```
+
 ## Installation
 
 ```
