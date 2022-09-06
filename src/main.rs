@@ -35,7 +35,7 @@ enum GoTestAction {
 
 #[derive(Ord, PartialOrd, Eq, PartialEq, Hash, Clone, Debug)]
 struct GoTestKey {
-    package: String,
+    package: Option<String>,
     test: Option<String>,
 }
 
@@ -44,7 +44,7 @@ struct GoTestKey {
 struct GoTestEntry {
     time: String,
     action: GoTestAction,
-    package: String,
+    package: Option<String>,
     test: Option<String>,
     output: Option<String>,
 }
@@ -97,7 +97,9 @@ impl Prettifier {
             GoTestAction::Fail | GoTestAction::Pass => {
                 let output = self.go_test_entries.remove(&key);
                 let mut map = serde_json::Map::new();
-                map.insert("Package".to_string(), Value::String(key.package));
+                if let Some(package) = key.package {
+                    map.insert("Package".to_string(), Value::String(package));
+                }
                 if let Some(test) = key.test {
                     map.insert("Test".to_string(), Value::String(test));
                 }
