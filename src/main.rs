@@ -104,9 +104,17 @@ impl Prettifier {
                     map.insert("Test".to_string(), Value::String(test));
                 }
                 if let Some(output) = output {
+                    // we need to parse without any wrapping at this stage
+                    let mut prettifier = Prettifier {
+                        width: None,
+                        use_bold: self.use_bold,
+                        go_test_entries: HashMap::new(),
+                        parse_go_test_output: false,
+                    };
+
                     let test_output = output
                         .split('\n')
-                        .flat_map(|s| self.parse_string(0, s.to_string()))
+                        .flat_map(|s| prettifier.parse_string(0, s.to_string()))
                         .join("\n");
                     map.insert("Output".to_string(), Value::String(test_output));
                 }
@@ -172,6 +180,17 @@ impl Prettifier {
                     .chunks(width as usize)
                     .into_iter()
                     .map(String::from_iter)
+                    .scan(None, |reindent, mut line| {
+                        // hack: this re-indents traces according to the indentation of the first
+                        // line. this is due to go-test parsing, that is already indented but not
+                        // wrapped.
+                        if let Some(reindent) = reindent {
+                            line = String::from_iter(repeat_n(' ', *reindent)) + &*line;
+                        } else {
+                            *reindent = Some(line.chars().position(|c| c != ' ').unwrap_or(0));
+                        }
+                        Some(line)
+                    })
                     .collect_vec()
             }))
         } else {
